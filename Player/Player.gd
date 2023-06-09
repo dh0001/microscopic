@@ -38,6 +38,7 @@ var jump_buffer_timer : float = 0
 var is_jumping := false
 # ----------------------------------- #
 
+var size = "normal"
 
 # All iputs we want to keep track of
 func get_input() -> Dictionary:
@@ -46,7 +47,8 @@ func get_input() -> Dictionary:
 		"y": int(Input.is_action_pressed("ui_down")) - int(Input.is_action_pressed("ui_up")),
 		"just_jump": Input.is_action_just_pressed("jump") == true,
 		"jump": Input.is_action_pressed("jump") == true,
-		"released_jump": Input.is_action_just_released("jump") == true
+		"released_jump": Input.is_action_just_released("jump") == true,
+		"change_size": Input.is_action_just_pressed("change_size") == true,
 	}
 
 
@@ -55,8 +57,22 @@ func _physics_process(delta: float) -> void:
 	jump_logic(delta)
 	apply_gravity(delta)
 	
+	size_change_logic()
+		
 	timers(delta)
 	move_and_slide()
+
+func size_change_logic() -> void:
+	if get_input()["change_size"]:
+		var tween = self.create_tween()
+		if size == "small":
+			size = "normal"
+			tween.tween_property(self, "scale", Vector2(0.25, 0.25), 0.1)
+			tween.tween_property($ScreenCamera, "zoom", Vector2(4, 4), 0.1)
+		else:
+			size = "small"
+			tween.tween_property(self, "scale", Vector2(1, 1), 0.1)
+			tween.tween_property($ScreenCamera, "zoom", Vector2(1, 1), 0.1)
 
 
 func x_movement(delta: float) -> void:
